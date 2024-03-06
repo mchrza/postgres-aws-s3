@@ -348,7 +348,11 @@ AS $$
         invokeArgs["Qualifier"] = qualifier
 
     response=client.invoke(**invokeArgs)
-    responsePayload = response['Payload'].read()
+    responsePayload = response['Payload'].read().decode()
+
+    if response.get('LogResult') == None:
+        response['LogResult'] = ''
+
     if ( 'FunctionError' in response ):
         raise Exception(responsePayload)
     return (response['StatusCode'], responsePayload, response['ExecutedVersion'], response['LogResult'])
