@@ -315,14 +315,21 @@ CREATE OR REPLACE FUNCTION aws_lambda._boto3_invoke(IN function_name aws_commons
 LANGUAGE plpython3u
 AS $$
     import boto3
+    from botocore.client import Config
 
     settings = plpy.execute("""SELECT
     coalesce(current_setting('aws_commons.connect_timeout_ms', true), '1000')::INTEGER AS connect_timeout_ms,
     coalesce(current_setting('aws_commons.request_timeout_ms', true), '3000')::INTEGER AS request_timeout_ms,
     coalesce(current_setting('aws_commons.endpoint_override', true), 'http://localstack:4566') AS endpoint_override""")[0]
 
+    connect_timeout = settings['connect_timeout_ms'] / 1000
+    request_timeout = settings['request_timeout_ms'] / 1000
+
+    config = Config(connect_timeout=connect_timeout, read_timeout=request_timeout)
+
     client=boto3.client(
         service_name='lambda',
+        config=config,
         region_name=function_name['region'],
         endpoint_url=settings['endpoint_override'],
         aws_access_key_id='localstack',
