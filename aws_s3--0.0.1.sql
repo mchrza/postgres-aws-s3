@@ -319,7 +319,7 @@ AS $$
 
     settings = plpy.execute("""SELECT
     coalesce(current_setting('aws_commons.connect_timeout_ms', true), '1000')::INTEGER AS connect_timeout_ms,
-    coalesce(current_setting('aws_commons.request_timeout_ms', true), '3000')::INTEGER AS request_timeout_ms,
+    coalesce(current_setting('aws_commons.request_timeout_ms', true), '30000')::INTEGER AS request_timeout_ms,
     coalesce(current_setting('aws_commons.endpoint_override', true), 'http://localstack:4566') AS endpoint_override""")[0]
 
     connect_timeout = settings['connect_timeout_ms'] / 1000
