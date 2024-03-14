@@ -368,7 +368,7 @@ CREATE OR REPLACE FUNCTION aws_lambda.invoke(IN function_name aws_commons._lambd
     RETURNS RECORD AS
 $BODY$
     BEGIN
-        IF lower(invocation_type) = 'event' THEN
+        IF invocation_type = 'event' THEN
 			PERFORM aws_lambda._boto3_invoke(function_name, req_payload::TEXT,
 		                                      region, invocation_type, log_type,
 		                                      context::TEXT, qualifier);
