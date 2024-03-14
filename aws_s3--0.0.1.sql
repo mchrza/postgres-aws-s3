@@ -352,6 +352,8 @@ AS $$
 
     if response.get('LogResult') == None:
         response['LogResult'] = ''
+    if response.get('ExecutedVersion') == None:
+        response['ExecutedVersion'] = ''
 
     if ( 'FunctionError' in response ):
         raise Exception(responsePayload)
@@ -366,11 +368,17 @@ CREATE OR REPLACE FUNCTION aws_lambda.invoke(IN function_name aws_commons._lambd
     RETURNS RECORD AS
 $BODY$
     BEGIN
-        SELECT result.status_code, result.payload::JSON, result.executed_version, result.log_result
-        FROM aws_lambda._boto3_invoke(function_name, req_payload::TEXT,
-                                      region, invocation_type, log_type,
-                                      context::TEXT, qualifier) result
-        INTO status_code, payload, executed_version, log_result;
+        IF lower(invocation_type) = 'event' THEN
+			PERFORM aws_lambda._boto3_invoke(function_name, req_payload::TEXT,
+		                                      region, invocation_type, log_type,
+		                                      context::TEXT, qualifier);
+        ELSE
+            SELECT result.status_code, result.payload::JSON, result.executed_version, result.log_result
+            FROM aws_lambda._boto3_invoke(function_name, req_payload::TEXT,
+                                          region, invocation_type, log_type,
+                                          context::TEXT, qualifier) result
+            INTO status_code, payload, executed_version, log_result;
+        END IF;
     END
 $BODY$
 LANGUAGE plpgsql VOLATILE;
