@@ -361,7 +361,7 @@ AS $$
 $$;
 
 CREATE OR REPLACE FUNCTION aws_lambda.invoke(IN function_name aws_commons._lambda_function_arn_1,
-    IN req_payload JSON, IN region TEXT DEFAULT NULL, IN invocation_type TEXT DEFAULT 'RequestResponse',
+    IN req_payload JSON, IN invocation_type TEXT DEFAULT 'RequestResponse',
     IN log_type TEXT DEFAULT 'None', IN context JSON DEFAULT NULL,
     IN qualifier VARCHAR(128) DEFAULT NULL, OUT status_code INT, OUT payload JSON,
     OUT executed_version TEXT, OUT log_result TEXT)
@@ -371,7 +371,7 @@ $BODY$
         SELECT result.status_code, (CASE WHEN (result.payload = '') THEN '{}'::JSON ELSE result.payload::JSON END),
                result.executed_version, result.log_result
             FROM aws_lambda._boto3_invoke(function_name, req_payload::TEXT,
-                                      region, invocation_type, log_type,
+                                      function_name.region, invocation_type, log_type,
                                       context::TEXT, qualifier) result
             INTO status_code, payload, executed_version, log_result;
     END
