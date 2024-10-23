@@ -263,8 +263,8 @@ $$;
 CREATE OR REPLACE FUNCTION aws_s3.query_export_to_s3(
     query text,
     s3_info aws_commons._s3_uri_1,
-    credentials aws_commons._aws_credentials_1 default null,
     options text default null,
+    credentials aws_commons._aws_credentials_1 default null,
     endpoint_url text default null,
     OUT rows_uploaded bigint,
     OUT files_uploaded bigint,
