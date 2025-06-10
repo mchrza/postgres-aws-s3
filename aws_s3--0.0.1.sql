@@ -256,7 +256,11 @@ AS $$
             num_lines += buffer.count(b'\n')
             size += len(buffer)
         fd.seek(0)
-        s3.upload_fileobj(fd, bucket, file_path)
+        if size == 0:
+            io = cache_import('io')
+            s3.upload_fileobj(io.BytesIO(b' '), bucket, file_path)
+        else:
+            s3.upload_fileobj(fd, bucket, file_path)
         yield (num_lines, 1, size)
 $$;
 
@@ -265,6 +269,7 @@ CREATE OR REPLACE FUNCTION aws_s3.query_export_to_s3(
     s3_info aws_commons._s3_uri_1,
     options text default null,
     credentials aws_commons._aws_credentials_1 default null,
+    options text default null,
     endpoint_url text default null,
     OUT rows_uploaded bigint,
     OUT files_uploaded bigint,
